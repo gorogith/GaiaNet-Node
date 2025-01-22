@@ -223,23 +223,33 @@ check_logs() {
 
 # Function to remove Gaia Node
 remove_node() {
-    print_warning "This will completely remove Gaia node and all its data."
-    read -p "Are you sure you want to continue? (y/N) " confirm
+    print_warning " PERINGATAN: Ini akan menghapus node Gaia dan semua datanya!"
+    print_warning "Data yang akan dihapus:"
+    echo "  - Direktori node di $HOME/gaianet"
+    echo "  - Konfigurasi environment di ~/.bashrc"
+    echo "  - Log files"
+    echo "  - Screen sessions"
     
-    if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
-        print_info "Stopping Gaia node services..."
-        gaianet stop
+    read -p "Ketik 'HAPUS' untuk konfirmasi: " confirm
+    if [ "$confirm" = "HAPUS" ]; then
+        print_info "Menghentikan node dan screen sessions..."
+        screen -S gaia-node -X quit >/dev/null 2>&1
+        screen -S gaia-web -X quit >/dev/null 2>&1
         
-        print_info "Removing Gaia node files..."
-        rm -rf "$SCRIPT_DIR"
+        print_info "Menghapus direktori node..."
+        rm -rf "$HOME/gaianet"
         
-        print_info "Cleaning up environment..."
-        # Remove environment variables from .bashrc
-        sed -i "/$SCRIPT_DIR/d" ~/.bashrc
+        print_info "Membersihkan environment..."
+        sed -i '/export PATH=.*gaianet/d' "$HOME/.bashrc"
+        sed -i '/export GAIA_HOME/d' "$HOME/.bashrc"
         
-        print_success "Gaia node has been completely removed."
+        print_info "Menghapus file auto chat..."
+        rm -f "/tmp/auto_chat.pid"
+        
+        print_success "Node berhasil dihapus!"
+        print_info "Untuk menginstall ulang, pilih menu 'Install Node'"
     else
-        print_info "Operation cancelled."
+        print_warning "Penghapusan dibatalkan"
     fi
 }
 
@@ -349,15 +359,16 @@ show_info() {
 show_menu() {
     clear
     echo -e "${BLUE}=== Gaia Node Manager ===${NC}"
-    echo "1) Install Gaia Node"
+    echo "1) Install Node"
     echo "2) Start Node"
     echo "3) Stop Node"
-    echo "4) Check Node Status"
-    echo "5) View Node Logs"
-    echo "6) Show Node Info"
+    echo "4) Check Status"
+    echo "5) View Logs"
+    echo "6) Show Info"
     echo "7) Start Auto Chat"
     echo "8) Stop Auto Chat"
     echo "9) Check Auto Chat Status"
+    echo "10) Remove Node"
     echo "0) Exit"
     echo
     echo -n "Choose an option: "
@@ -378,6 +389,7 @@ while true; do
         7) start_auto_chat ;;
         8) stop_auto_chat ;;
         9) check_auto_chat ;;
+        10) remove_node ;;
         0) 
             print_info "Exiting..."
             exit 0

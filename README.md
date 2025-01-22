@@ -111,6 +111,12 @@ chmod +x gaia.sh
    - Last chat time
    - Chat logs
 
+10. **Remove Node** - Hapus node
+    - Konfirmasi penghapusan
+    - Hapus semua data node
+    - Hapus konfigurasi environment
+    - Bersihkan screen sessions
+
 0. **Exit** - Keluar program
 
 ### 📂 Struktur Direktori
