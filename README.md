@@ -1,92 +1,173 @@
-# GaiaNet Node  🌍
+# 🌍 GaiaNet Node Manager
 
-Script ini membantu Anda menjalankan node Gaia di VPS atau komputer lokal dengan memudahkan proses instalasi, konfigurasi, dan monitoring node.
+Script manajemen untuk node Gaia yang memudahkan proses instalasi, konfigurasi, dan monitoring. Dilengkapi dengan fitur auto chat untuk interaksi otomatis dengan Gaia AI.
 
-## ⭐ Fitur Utama
+## ✨ Fitur Utama
 
-- 🚀 **One-Click Installation** - Instalasi node Gaia secara otomatis
-- 🖥️ **Screen Management** - Menjalankan node dalam screen session
-- 📊 **Monitoring** - Pemantauan status dan logs node
-- 🤖 **Auto Chat** - Fitur auto chat dengan Gaia AI menggunakan keyword
-- 🔄 **Auto-Restart** - Restart otomatis jika node berhenti
+- 🚀 **Instalasi Otomatis**
+  - One-click installation
+  - Konfigurasi otomatis environment
+  - Pengecekan persyaratan sistem
+  
+- 🖥️ **Manajemen Node**
+  - Start/stop node dengan mudah
+  - Monitoring status node
+  - Auto-restart saat node berhenti
+  
+- 📊 **Sistem Monitoring**
+  - Log node terstruktur
+  - Status node real-time
+  - Informasi performa node
+  
+- 🤖 **Auto Chat**
+  - Chat otomatis dengan Gaia AI
+  - Konfigurasi interval chat
+  - Log chat terstruktur
+  
+- 📝 **Logging System**
+  - Log instalasi
+  - Log aktivitas node
+  - Log chat
+  - Timestamp untuk setiap event
 
 ## 💻 Persyaratan Sistem
 
-- **OS**: Ubuntu/Debian Linux
-- **RAM**: Minimal 4GB
-- **Storage**: 20GB free space
-- **Software**:
-  - Python 3.7+
-  - Screen
-  - Git
+### Hardware
+- CPU: 2 core (recommended 4 core)
+- RAM: 4GB minimum
+- Storage: 20GB free space
+- Network: Koneksi internet stabil
 
-*Note: Package Python yang diperlukan akan diinstal otomatis oleh script*
+### Software
+- OS: Ubuntu 20.04+ / Debian 11+
+- Python 3.7+
+- Screen
+- Git
+- curl
+- jq
 
-## 🛠️ Cara Instalasi
+## 🚀 Cara Instalasi
 
-1. Clone repository:
+1. Clone repository
 ```bash
 git clone https://github.com/gorogith/GaiaNet-Node.git
-<<<<<<< HEAD
 cd GaiaNet-Node
-=======
-cd GaiaNet
->>>>>>> a3f898e (Initial commit)
 ```
 
-2. Beri permission pada script:
+2. Set permission
 ```bash
 chmod +x gaia.sh
 ```
 
-## 📖 Cara Penggunaan
-
-1. Jalankan script:
+3. Jalankan installer
 ```bash
 ./gaia.sh
 ```
 
-2. Pilih menu yang tersedia:
-- 1️⃣ Install Gaia Node
-- 2️⃣ Start Node
-- 3️⃣ Stop Node
-- 4️⃣ Check Node Status
-- 5️⃣ View Node Logs
-- 6️⃣ Show Node Info
-- 7️⃣ Remove Node
-- 8️⃣ Start Auto Chat
-- 9️⃣ Stop Auto Chat
-- 🔟 Check Auto Chat Status
-- ⏹️ Exit
+## 📖 Penggunaan
 
-### 🤖 Menggunakan Auto Chat
+### Menu Utama
+1. **Install Node** - Install node baru
+   - Menginstall dependencies
+   - Konfigurasi environment
+   - Generate node ID dan device ID
 
-1. Pastikan node sudah terinstall dan berjalan (menu 1 dan 2)
-2. Pilih menu 8 untuk memulai auto chat dalam screen session
-3. Script akan otomatis:
-   - Mengecek dan menginstal package Python yang diperlukan
-   - Membaca keyword dari file keyword.txt
-   - Menjalankan auto chat dalam screen session 'gaia-auto-chat'
-   - Mengirim chat ke Gaia AI dengan delay 30 detik
-   - Menampilkan response dari AI
+2. **Start Node** - Menjalankan node
+   - Start dalam screen session
+   - Auto-restart jika crash
+   - Start web interface
 
-### 📺 Mengelola Screen Auto Chat
+3. **Stop Node** - Menghentikan node
+   - Graceful shutdown
+   - Cleanup resources
 
-- **Melihat Auto Chat**: `screen -r gaia-auto-chat`
-- **Keluar dari Screen**: Tekan `Ctrl+A`, lalu `D`
-- **Menghentikan Auto Chat**: 
-  - Melalui menu: Pilih menu 9
-  - Manual: `screen -S gaia-auto-chat -X quit`
-- **Cek Status Auto Chat**: 
-  - Melalui menu: Pilih menu 10
-  - Manual: `screen -list | grep gaia-auto-chat`
+4. **Check Status** - Status node
+   - Status koneksi
+   - Uptime
+   - Resource usage
 
-*Note: Anda dapat memodifikasi keyword.txt untuk mengubah daftar pertanyaan yang akan dikirim ke AI*
+5. **View Logs** - Lihat log node
+   - Error logs
+   - Activity logs
+   - Performance logs
 
-## 📝 Catatan Penting
+6. **Node Info** - Informasi node
+   - Node ID
+   - Device ID
+   - Public URL
+   - Konfigurasi
 
-- Pastikan Node ID sudah terkonfigurasi dengan benar
-- Auto chat akan dimulai dari index ke-11 dalam file keyword
-- Ada delay 30 detik antara setiap pengiriman chat untuk menghindari rate limiting
-- Auto chat berjalan dalam screen session terpisah sehingga tetap aktif meskipun terminal ditutup
-- Untuk melihat output auto chat, gunakan perintah screen yang tersedia
+7. **Start Auto Chat** - Mulai auto chat
+   - Interval: 5 menit
+   - Keyword: "hello"
+   - Log di chat_logs.txt
+
+8. **Stop Auto Chat** - Stop auto chat
+   - Graceful shutdown
+   - Save chat logs
+
+9. **Auto Chat Status** - Status auto chat
+   - Running/stopped
+   - Last chat time
+   - Chat logs
+
+0. **Exit** - Keluar program
+
+### 📂 Struktur Direktori
+
+```
+~/gaianet/
+├── bin/           # Binary dan executables
+├── logs/          # Log files
+│   ├── node.log   # Node logs
+│   └── chat.log   # Chat logs
+├── config/        # Konfigurasi
+└── data/          # Data node
+```
+
+### 🔍 Log Files
+
+- **Install Log**: `~/gaianet/install.log`
+  - Log proses instalasi
+  - Error installation
+  - System checks
+
+- **Node Log**: `~/gaianet/logs/node.log`
+  - Status node
+  - Error node
+  - Performance metrics
+
+- **Chat Log**: `~/gaianet/chat_logs.txt`
+  - Chat history
+  - Response AI
+  - Timestamp
+
+## 🛠️ Troubleshooting
+
+### Node Tidak Start
+1. Cek logs: `tail -f ~/gaianet/logs/node.log`
+2. Pastikan port tidak terpakai
+3. Cek resource system
+
+### Auto Chat Error
+1. Cek chat logs: `tail -f ~/gaianet/chat_logs.txt`
+2. Pastikan node running
+3. Cek koneksi internet
+
+## 🤝 Kontribusi
+
+Silakan berkontribusi dengan cara:
+- Report bugs
+- Feature request
+- Pull request
+- Dokumentasi
+
+## 📜 Lisensi
+
+MIT License - Bebas digunakan dan dimodifikasi.
+
+## 📞 Support
+
+- GitHub Issues
+- Discord: [GaiaNet Community](https://discord.gg/gaianet)
+- Telegram: [@GaiaNetSupport](https://t.me/gaianetsupport)
