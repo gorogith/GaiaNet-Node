@@ -27,7 +27,11 @@ Script ini membantu Anda menjalankan node Gaia di VPS atau komputer lokal dengan
 1. Clone repository:
 ```bash
 git clone https://github.com/gorogith/GaiaNet-Node.git
+<<<<<<< HEAD
 cd GaiaNet-Node
+=======
+cd GaiaNet
+>>>>>>> a3f898e (Initial commit)
 ```
 
 2. Beri permission pada script:

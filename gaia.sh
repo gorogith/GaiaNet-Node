@@ -68,6 +68,23 @@ check_requirements() {
 # Get the current directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+<<<<<<< HEAD
+=======
+# Function to setup environment
+setup_environment() {
+    # Add gaianet paths
+    export PATH="$PATH:$SCRIPT_DIR/gaianet/bin:$HOME/gaianet/bin:$SCRIPT_DIR/bin"
+    
+    # Add to .bashrc if not already present
+    if ! grep -q "gaianet/bin" ~/.bashrc; then
+        echo "export PATH=\$PATH:$SCRIPT_DIR/gaianet/bin:$HOME/gaianet/bin:$SCRIPT_DIR/bin" >> ~/.bashrc
+    fi
+    
+    # Source bashrc
+    source ~/.bashrc
+}
+
+>>>>>>> a3f898e (Initial commit)
 # Install Gaia Node
 install_node() {
     print_info "Starting Gaia node installation..."
@@ -75,8 +92,14 @@ install_node() {
     # Check requirements first
     check_requirements
     
+<<<<<<< HEAD
     # Use current directory
     INSTALL_DIR="$PWD"
+=======
+    # Use home directory for VPS installation
+    INSTALL_DIR="$HOME/gaianet"
+    mkdir -p "$INSTALL_DIR"
+>>>>>>> a3f898e (Initial commit)
     cd "$INSTALL_DIR"
     
     # Create a log file for installation
@@ -85,6 +108,7 @@ install_node() {
     # Install required packages
     print_info "Installing required packages..."
     sudo apt-get update
+<<<<<<< HEAD
     sudo apt-get install -y curl wget build-essential jq screen
     
     # Download and run Gaia installer, capture all output
@@ -92,6 +116,18 @@ install_node() {
     curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | tee "$INSTALL_LOG" | bash
     
     # Extract node information from the log immediately after installation
+=======
+    sudo apt-get install -y curl wget git build-essential jq screen lsof python3 python3-pip
+    
+    # Install Python packages
+    pip3 install requests
+    
+    # Download and run Gaia installer
+    print_info "Downloading and running Gaia installer..."
+    curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | tee "$INSTALL_LOG" | bash
+    
+    # Extract node information from the log
+>>>>>>> a3f898e (Initial commit)
     NODE_ID=$(grep -o "0x[a-fA-F0-9]\{40\}" "$INSTALL_LOG" | tail -n 1)
     DEVICE_ID=$(grep "device ID is" "$INSTALL_LOG" | grep -o "device-[a-zA-Z0-9]\{24\}")
     
@@ -101,6 +137,7 @@ install_node() {
     # Set up environment
     print_info "Setting up environment..."
     
+<<<<<<< HEAD
     # Add gaianet binary path to current session
     export PATH="$PATH:$INSTALL_DIR/gaianet/bin"
     
@@ -110,10 +147,18 @@ install_node() {
     fi
     
     # Source .bashrc
+=======
+    # Clean up existing PATH entries
+    sed -i '/gaianet\/bin/d' ~/.bashrc
+    
+    # Add gaianet binary path
+    echo "export PATH=\$PATH:$INSTALL_DIR/bin:$HOME/.local/bin" >> ~/.bashrc
+>>>>>>> a3f898e (Initial commit)
     source ~/.bashrc
     
     # Verify gaianet is available
     if ! command -v gaianet &> /dev/null; then
+<<<<<<< HEAD
         print_error "gaianet command not found. Adding it manually..."
         # Try alternative paths
         if [ -f "$INSTALL_DIR/bin/gaianet" ]; then
@@ -131,6 +176,20 @@ install_node() {
     # Save node information immediately
     if [ ! -z "$NODE_ID" ] && [ ! -z "$DEVICE_ID" ]; then
         cat > "$INSTALL_DIR/info/node_details.txt" << EOL
+=======
+        print_error "gaianet command not found. Installing manually..."
+        if [ -f "$INSTALL_DIR/bin/gaianet" ]; then
+            sudo ln -sf "$INSTALL_DIR/bin/gaianet" /usr/local/bin/gaianet
+        fi
+    fi
+    
+    # Create config directory
+    mkdir -p "$INSTALL_DIR/config"
+    
+    # Save node information
+    if [ ! -z "$NODE_ID" ] && [ ! -z "$DEVICE_ID" ]; then
+        cat > "$INSTALL_DIR/config/node_details.txt" << EOL
+>>>>>>> a3f898e (Initial commit)
 Node Information (Generated at: $(date))
 =======================================
 Node ID: $NODE_ID
@@ -140,6 +199,7 @@ Public URL: https://${NODE_ID}.gaia.domains
 
 Important Commands:
 -----------------
+<<<<<<< HEAD
 1. Start node in screen: $INSTALL_DIR/start_screens.sh
 2. View node screen: screen -r gaia-node
 3. View web interface screen: screen -r gaia-web
@@ -152,6 +212,19 @@ Screen Commands:
 - Detach from screen: Ctrl+A, then D
 - List screens: screen -list
 - Reattach to screen: screen -r [screen-name]
+=======
+1. Start node:    gaianet start
+2. Stop node:     gaianet stop
+3. Check status:  gaianet status
+4. View logs:     gaianet logs
+
+Screen Commands:
+--------------
+- View node screen: screen -r gaia-node
+- Detach from screen: Press Ctrl+A, then D
+- List screens: screen -list
+- Kill screen: screen -S gaia-node -X quit
+>>>>>>> a3f898e (Initial commit)
 EOL
     fi
     
@@ -161,6 +234,7 @@ EOL
         gaianet init
         print_success "Node initialized successfully"
     else
+<<<<<<< HEAD
         print_error "Failed to find gaianet command. Please run these commands manually:"
         echo "export PATH=\$PATH:$INSTALL_DIR/gaianet/bin"
         echo "source ~/.bashrc"
@@ -235,6 +309,96 @@ EOL
         print_warning "Could not find node information in installation log"
         print_info "Please check $INSTALL_LOG for details"
     fi
+=======
+        print_error "Failed to find gaianet command"
+        return 1
+    fi
+    
+    print_success "Installation completed successfully!"
+    print_info "Please run 'source ~/.bashrc' to update your environment"
+}
+
+# Start Gaia Node
+start_node() {
+    if ! command -v gaianet &> /dev/null; then
+        print_error "Gaia node not found. Please install it first (Option 1)"
+        return 1
+    fi
+    
+    print_info "Starting Gaia node in screen session..."
+    
+    # Kill existing screen if exists
+    screen -S gaia-node -X quit 2>/dev/null
+    
+    # Initialize node if needed
+    if ! gaianet info &>/dev/null; then
+        print_info "Initializing node..."
+        gaianet init
+    fi
+    
+    # Get base directory
+    local BASE_DIR="$HOME/gaianet"
+    
+    # Create startup script
+    STARTUP_SCRIPT="/tmp/gaia_startup.sh"
+    cat > "$STARTUP_SCRIPT" << EOL
+#!/bin/bash
+source ~/.bashrc
+
+while true; do
+    echo "Starting Gaia node..."
+    gaianet start --base "$BASE_DIR" --force-rag
+    
+    if [ \$? -ne 0 ]; then
+        echo "Node failed to start, retrying in 5 seconds..."
+    else
+        echo "Node exited normally, restarting in 5 seconds..."
+    fi
+    sleep 5
+done
+EOL
+    chmod +x "$STARTUP_SCRIPT"
+    
+    # Start in screen
+    screen -dmS gaia-node bash -c "exec $STARTUP_SCRIPT"
+    sleep 2
+    
+    if ! screen -list | grep -q "gaia-node"; then
+        print_error "Failed to create screen session"
+        rm -f "$STARTUP_SCRIPT"
+        return 1
+    fi
+    
+    # Wait for initialization
+    print_info "Waiting for node to initialize..."
+    local max_attempts=10
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        if gaianet info &>/dev/null; then
+            NODE_ID=$(gaianet info 2>/dev/null | grep "Node ID" | cut -d':' -f2 | tr -d ' ')
+            if [ ! -z "$NODE_ID" ]; then
+                print_success "Node started successfully"
+                print_success "Node ID: $NODE_ID"
+                print_success "Public URL: https://${NODE_ID}.gaia.domains"
+                
+                print_info "To view the node:"
+                print_info "1. Attach to screen: screen -r gaia-node"
+                print_info "2. Detach from screen: Press Ctrl+A, then D"
+                print_info "3. View logs: gaianet logs"
+                return 0
+            fi
+        fi
+        print_info "Attempt $attempt of $max_attempts..."
+        sleep 3
+        attempt=$((attempt + 1))
+    done
+    
+    print_error "Node failed to start properly"
+    screen -S gaia-node -X quit 2>/dev/null
+    rm -f "$STARTUP_SCRIPT"
+    return 1
+>>>>>>> a3f898e (Initial commit)
 }
 
 # Check node logs
@@ -261,6 +425,47 @@ check_logs() {
     tail -n 10 "$SCRIPT_DIR/logs/combined_logs.txt"
 }
 
+<<<<<<< HEAD
+=======
+# Stop Gaia Node
+stop_node() {
+    print_info "Stopping Gaia node..."
+    
+    # Try to stop gaianet gracefully first
+    if command -v gaianet &> /dev/null; then
+        gaianet stop
+        sleep 2
+    fi
+    
+    # Kill screen sessions
+    local killed_screen=0
+    
+    if screen -list | grep -q "gaia-node"; then
+        screen -S gaia-node -X quit
+        print_success "Gaia node screen session terminated"
+        killed_screen=1
+    fi
+    
+    # Clean up startup script if exists
+    if [ -f "/tmp/gaia_startup.sh" ]; then
+        rm -f "/tmp/gaia_startup.sh"
+    fi
+    
+    # Double check if node is really stopped
+    if gaianet info &>/dev/null; then
+        print_warning "Node process might still be running"
+        print_info "You may need to manually kill the process"
+        ps aux | grep gaianet | grep -v grep
+    else
+        if [ $killed_screen -eq 1 ]; then
+            print_success "Node stopped successfully"
+        else
+            print_warning "No running node found"
+        fi
+    fi
+}
+
+>>>>>>> a3f898e (Initial commit)
 # Remove Gaia Node
 remove_node() {
     print_warning "This will completely remove Gaia node and all its data."
@@ -283,6 +488,7 @@ remove_node() {
     fi
 }
 
+<<<<<<< HEAD
 # Start Gaia Node
 start_node() {
     print_info "Starting Gaia node in screen session..."
@@ -362,6 +568,44 @@ stop_node() {
 # Check Node Status
 check_status() {
     print_info "Checking node status..."
+=======
+# Function to check if port is in use
+check_port() {
+    local port=$1
+    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null ; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to find available port
+find_available_port() {
+    local start_port=$1
+    local port=$start_port
+    print_info "Checking port $port..."
+    while check_port $port; do
+        print_warning "Port $port is in use, trying next port..."
+        port=$((port + 1))
+        print_info "Checking port $port..."
+    done
+    print_success "Found available port: $port"
+    echo $port
+}
+
+# Check Node Status and Information
+check_status() {
+    # Check if gaianet is installed
+    if ! command -v gaianet &> /dev/null; then
+        print_error "Gaia node not found. Please install it first (Option 1)"
+        return 1
+    fi
+    
+    print_info "Checking node status and information..."
+    
+    # Setup environment
+    setup_environment
+>>>>>>> a3f898e (Initial commit)
     
     # Check screen sessions
     echo -e "\n=== Screen Sessions ==="
@@ -371,6 +615,7 @@ check_status() {
         echo "No Gaia screen sessions found"
     fi
     
+<<<<<<< HEAD
     # Check node status
     echo -e "\n=== Node Status ==="
     gaianet status
@@ -382,6 +627,188 @@ show_info() {
         cat "$SCRIPT_DIR/node_info.txt"
     else
         print_error "Node information file not found. Has the node been installed?"
+=======
+    # Check if node is running and show information
+    echo -e "\n=== Node Status & Information ==="
+    if gaianet info &>/dev/null; then
+        NODE_INFO=$(gaianet info 2>/dev/null)
+        NODE_ID=$(echo "$NODE_INFO" | grep "Node ID" | cut -d':' -f2 | tr -d ' ')
+        DEVICE_ID=$(echo "$NODE_INFO" | grep "Device ID" | cut -d':' -f2 | tr -d ' ')
+        
+        if [ ! -z "$NODE_ID" ] || [ ! -z "$DEVICE_ID" ]; then
+            print_success "Node is running"
+            
+            echo -e "\nNode Configuration:"
+            echo "=================="
+            [ ! -z "$NODE_ID" ] && echo "Node ID: $NODE_ID"
+            [ ! -z "$DEVICE_ID" ] && echo "Device ID: $DEVICE_ID"
+            [ ! -z "$NODE_ID" ] && echo "Public URL: https://${NODE_ID}.gaia.domains"
+            
+            echo -e "\nUseful Commands:"
+            echo "=================="
+            echo "1. Start node:    gaianet start"
+            echo "2. Stop node:     gaianet stop"
+            echo "3. View logs:     gaianet logs"
+            echo "4. View screen:   screen -r gaia-node"
+            
+            echo -e "\nScreen Commands:"
+            echo "=================="
+            echo "- List screens:     screen -list"
+            echo "- Attach to screen: screen -r [screen-name]"
+            echo "- Detach:           Ctrl+A, then D"
+            echo "- Kill screen:      screen -S [screen-name] -X quit"
+        else
+            print_warning "Node status unknown"
+        fi
+    else
+        print_error "Node is not running"
+        print_info "Try starting the node first (Option 2)"
+    fi
+}
+
+# Auto Chat function
+start_auto_chat() {
+    print_info "Starting Auto Chat with Gaia AI..."
+    
+    # Check if node is running and get node ID
+    if ! gaianet info &>/dev/null; then
+        print_error "Node is not running. Please start the node first (Option 2)"
+        return 1
+    fi
+    
+    NODE_ID=$(gaianet info 2>/dev/null | grep "Node ID" | cut -d':' -f2 | tr -d ' ')
+    if [ -z "$NODE_ID" ]; then
+        print_error "Could not get Node ID. Please ensure the node is running properly"
+        return 1
+    fi
+    
+    # Check if python3 is installed
+    if ! command -v python3 &> /dev/null; then
+        print_error "Python3 is required but not installed"
+        return 1
+    fi
+    
+    # Check if required files exist
+    if [ ! -f "$SCRIPT_DIR/bot_chat.py" ]; then
+        print_error "bot_chat.py not found"
+        return 1
+    fi
+    
+    if [ ! -f "$SCRIPT_DIR/keyword.txt" ]; then
+        print_error "keyword.txt not found"
+        return 1
+    fi
+    
+    # Check if requests module is installed
+    if ! python3 -c "import requests" &> /dev/null; then
+        print_info "Installing required Python package: requests"
+        pip3 install requests
+    fi
+    
+    # Kill existing screen if exists
+    screen -S gaia-auto-chat -X quit 2>/dev/null
+    
+    # Create startup script for auto chat
+    AUTO_CHAT_SCRIPT="/tmp/auto_chat_startup.sh"
+    cat > "$AUTO_CHAT_SCRIPT" << EOL
+#!/bin/bash
+
+cd "$SCRIPT_DIR"
+NODE_ID="$NODE_ID"
+
+while true; do
+    echo "Starting auto chat for Node ID: \$NODE_ID"
+    python3 bot_chat.py "\$NODE_ID"
+    
+    # Check exit status
+    if [ \$? -ne 0 ]; then
+        echo "Auto chat failed, retrying in 5 seconds..."
+    else
+        echo "Auto chat exited normally, restarting in 5 seconds..."
+    fi
+    sleep 5
+done
+EOL
+    chmod +x "$AUTO_CHAT_SCRIPT"
+    
+    print_info "Starting auto chat in screen session 'gaia-auto-chat'..."
+    print_info "Using Node ID: $NODE_ID"
+    
+    # Start auto chat in screen
+    screen -dmS gaia-auto-chat bash -c "
+        cd \"$SCRIPT_DIR\"
+        exec $AUTO_CHAT_SCRIPT
+    "
+    
+    # Wait for screen session to be created
+    sleep 2
+    
+    # Verify screen session exists
+    if screen -list | grep -q "gaia-auto-chat"; then
+        print_success "Auto chat started in screen session"
+        print_info "To view auto chat:"
+        print_info "- Attach to screen: screen -r gaia-auto-chat"
+        print_info "- Detach from screen: Press Ctrl+A, then D"
+        print_info "- Stop auto chat: screen -S gaia-auto-chat -X quit"
+    else
+        print_error "Failed to start auto chat"
+        rm -f "$AUTO_CHAT_SCRIPT"
+        return 1
+    fi
+}
+
+# Stop auto chat
+stop_auto_chat() {
+    local stopped=0
+    
+    # Try to find and kill the screen session
+    if screen -list | grep -q "gaia-auto-chat"; then
+        screen -S gaia-auto-chat -X quit
+        stopped=1
+    fi
+    
+    # Clean up startup script if exists
+    if [ -f "/tmp/auto_chat_startup.sh" ]; then
+        rm -f "/tmp/auto_chat_startup.sh"
+    fi
+    
+    # Check if any python process related to auto chat is still running
+    if pgrep -f "python3.*bot_chat.py" > /dev/null; then
+        print_warning "Auto chat process still running"
+        print_info "Attempting to kill remaining processes..."
+        pkill -f "python3.*bot_chat.py"
+        sleep 1
+    fi
+    
+    if [ $stopped -eq 1 ]; then
+        print_success "Auto chat stopped successfully"
+    else
+        print_warning "Auto chat is not running"
+    fi
+}
+
+# Check auto chat status
+check_auto_chat() {
+    local running=0
+    
+    # Check screen session
+    if screen -list | grep -q "gaia-auto-chat"; then
+        running=1
+    fi
+    
+    # Check python process
+    if pgrep -f "python3.*bot_chat.py" > /dev/null; then
+        running=1
+    fi
+    
+    if [ $running -eq 1 ]; then
+        print_success "Auto chat is running"
+        print_info "Screen session: gaia-auto-chat"
+        print_info "Process info:"
+        ps aux | grep "python3.*bot_chat.py" | grep -v grep
+    else
+        print_warning "Auto chat is not running"
+>>>>>>> a3f898e (Initial commit)
     fi
 }
 
@@ -396,6 +823,7 @@ show_menu() {
     echo "2) Start Node"
     echo "3) Stop Node"
     echo "4) Check Node Status"
+<<<<<<< HEAD
     echo "5) View Node Information"
     echo "6) Check Logs"
     echo "7) Remove Node"
@@ -403,6 +831,15 @@ show_menu() {
     echo "9) Exit"
     echo
     echo -n "Please enter your choice [1-9]: "
+=======
+    echo "5) View Node Logs"
+    echo "6) Start Auto Chat"
+    echo "7) Stop Auto Chat"
+    echo "8) Check Auto Chat Status"
+    echo "0) Exit"
+    echo
+    echo -n "Choose an option: "
+>>>>>>> a3f898e (Initial commit)
 }
 
 # Main loop
@@ -424,6 +861,7 @@ while true; do
             check_status
             ;;
         5)
+<<<<<<< HEAD
             show_info
             ;;
         6)
@@ -437,6 +875,21 @@ while true; do
             ;;
         9)
             echo "Goodbye!"
+=======
+            check_logs
+            ;;
+        6)
+            start_auto_chat
+            ;;
+        7)
+            stop_auto_chat
+            ;;
+        8)
+            check_auto_chat
+            ;;
+        0)
+            print_info "Exiting..."
+>>>>>>> a3f898e (Initial commit)
             exit 0
             ;;
         *)
@@ -446,4 +899,8 @@ while true; do
     
     echo
     read -n 1 -s -r -p "Press any key to continue..."
+<<<<<<< HEAD
 done
+=======
+done
+>>>>>>> a3f898e (Initial commit)

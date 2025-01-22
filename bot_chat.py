@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/bash
 
 # Colors for output
@@ -494,3 +495,98 @@ while true; do
     echo
     read -n 1 -s -r -p "Press any key to continue..."
 done
+=======
+#!/usr/bin/env python3
+import requests
+import time
+import sys
+import os
+from typing import List
+
+def read_keywords(file_path: str) -> List[str]:
+    """Read keywords from file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"Error reading keywords file: {e}")
+        return []
+
+def send_chat(message: str, node_id: str) -> None:
+    """Send chat message to Gaia AI."""
+    try:
+        url = f"https://{node_id}.gaia.domains/v1/chat/completions"
+        payload = {
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant."
+                },
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ]
+        }
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json"
+        }
+
+        print(f"\n[Chat] Sending to {url}")
+        print(f"[Chat] Message: {message}")
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        if response.status_code == 200:
+            result = response.json()
+            print(f"[Response] {result['choices'][0]['message']['content']}\n")
+        else:
+            print(f"Error: Status code {response.status_code}")
+            print(f"Response: {response.text}\n")
+
+    except requests.exceptions.Timeout:
+        print(f"Error: Request timed out after 30 seconds\n")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending chat: {e}\n")
+    except Exception as e:
+        print(f"Unexpected error: {e}\n")
+
+def auto_chat(node_id: str, keyword_file: str = "keyword.txt", delay: int = 30):
+    """Main function to run auto chat."""
+    print(f"\n=== Starting Auto Chat for Node {node_id} ===\n")
+    
+    if not os.path.exists(keyword_file):
+        print(f"Error: Keyword file '{keyword_file}' not found")
+        return
+    
+    keywords = read_keywords(keyword_file)
+    if not keywords:
+        print("No keywords found. Exiting...")
+        return
+
+    print(f"Loaded {len(keywords)} keywords from {keyword_file}")
+    print(f"Using delay of {delay} seconds between messages")
+    print("Starting chat sequence...\n")
+
+    try:
+        while True:  # Infinite loop
+            for i, keyword in enumerate(keywords):
+                print(f"Message {i+1}/{len(keywords)}")
+                send_chat(keyword, node_id)
+                time.sleep(delay)
+            print("\nRestarting keyword sequence...\n")
+
+    except KeyboardInterrupt:
+        print("\nAuto chat stopped by user.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise  # Re-raise to trigger non-zero exit code
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python bot_chat.py <node_id>")
+        sys.exit(1)
+    
+    node_id = sys.argv[1]
+    auto_chat(node_id)
+>>>>>>> a3f898e (Initial commit)
